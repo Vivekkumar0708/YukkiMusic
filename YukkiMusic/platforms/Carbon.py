@@ -15,8 +15,7 @@ import aiohttp
 from aiohttp import client_exceptions
 
 
-class UnableToFetchCarbon(Exception):
-    pass
+from YukkiMusic.utils.exceptions import UnableToFetchCarbon
 
 
 themes = [
