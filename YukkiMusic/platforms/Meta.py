@@ -44,6 +44,26 @@ class MetaApi:
             return await self.instagram(url)
         raise AssistantErr("Unsupported platform")
 
+    async def info(self, url: str, platform: str) -> Dict[str, Union[str, int]]:
+        try:
+            ydl_opts = {
+                'format': 'best',
+                'quiet': True,
+            }
+            loop = asyncio.get_running_loop()
+            with YoutubeDL(ydl_opts) as ydl:
+                info = await loop.run_in_executor(None, ydl.extract_info, url, download=False)
+
+            return {
+                "title": info['title'],
+                "duration": seconds_to_min(info.get('duration', 0)),
+                "duration_sec": info.get('duration', 0),
+                "thumbnail": info.get('thumbnail'),
+                "url": url
+            }
+        except Exception as e:
+            raise AssistantErr(f"Error fetching information for {platform}: {str(e)}")
+
     async def facebook(self, url: str) -> Dict[str, Union[str, int]]:
         try:
             ydl_opts = {
