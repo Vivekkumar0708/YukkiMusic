@@ -75,33 +75,29 @@ if not commands:
     sys.exit()
 
 
-def command(commands: Union[str, List[str]], prefixes: Union[str, List[str]] = "/", case_sensitive: bool = False):
+def command(commands: Union[str, List[str]], prefixes: Union[str, List[str], None] = "/", case_sensitive: bool = False):
     async def func(flt, client: pyrogram.Client, message: Message):
         lang_code = await get_lang(message.chat.id)
         
-        # Convert commands to list if it's a string
         if isinstance(commands, str):
             commands_list = [commands]
         else:
             commands_list = commands
 
-        # Get localized commands
         localized_commands = []
+        en_commands = []
         for cmd in commands_list:
             localized_cmd = get_command(cmd, lang_code)
             if isinstance(localized_cmd, str):
                 localized_commands.append(localized_cmd)
             elif isinstance(localized_cmd, list):
                 localized_commands.extend(localized_cmd)
-
-        # Add English commands if lang_code is not English
-        if lang_code != "en":
-            for cmd in commands_list:
-                en_cmd = get_command(cmd, "en")
-                if isinstance(en_cmd, str):
-                    localized_commands.append(en_cmd)
-                elif isinstance(en_cmd, list):
-                    localized_commands.extend(en_cmd)
+            
+            en_cmd = get_command(cmd, "en")
+            if isinstance(en_cmd, str):
+                en_commands.append(en_cmd)
+            elif isinstance(en_cmd, list):
+                en_commands.extend(en_cmd)
 
         username = client.me.username or ""
         text = message.text or message.caption
@@ -110,8 +106,8 @@ def command(commands: Union[str, List[str]], prefixes: Union[str, List[str]] = "
         if not text:
             return False
 
-        def match_command(cmd, text, with_prefix=False):
-            if with_prefix:
+        def match_command(cmd, text):
+            if flt.prefixes:
                 for prefix in flt.prefixes:
                     if text.startswith(prefix):
                         without_prefix = text[len(prefix):]
@@ -124,15 +120,10 @@ def command(commands: Union[str, List[str]], prefixes: Union[str, List[str]] = "
                     return cmd
             return None
 
-        for cmd in localized_commands:
-            matched_cmd = None
-            if cmd in get_command(commands, "en"):
-                # English commands only work with prefix
-                matched_cmd = match_command(cmd, text, with_prefix=True)
-            else:
-                # User language commands work with or without prefix
-                matched_cmd = match_command(cmd, text, with_prefix=True) or match_command(cmd, text)
-
+        all_commands = en_commands + localized_commands if lang_code != "en" else en_commands
+        
+        for cmd in all_commands:
+            matched_cmd = match_command(cmd, text)
             if matched_cmd:
                 without_command = re.sub(rf"{matched_cmd}(?:@?{username})?\s?", "", text, count=1,
                                          flags=re.IGNORECASE if not flt.case_sensitive else 0)
@@ -144,9 +135,10 @@ def command(commands: Union[str, List[str]], prefixes: Union[str, List[str]] = "
 
         return False
 
-    prefixes = [] if prefixes is None else prefixes
-    prefixes = prefixes if isinstance(prefixes, list) else [prefixes]
-    prefixes = set(prefixes) if prefixes else {""}
+    if prefixes == "" or prefixes is None:
+        prefixes = set()
+    else:
+        prefixes = set(prefixes) if isinstance(prefixes, list) else {prefixes}
 
     return create(
         func,
