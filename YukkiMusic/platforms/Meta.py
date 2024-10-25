@@ -71,7 +71,7 @@ class MetaApi:
         except Exception as e:
             raise AssistantErr(f"Error fetching information for facebook: {str(e)}")
 
-    async def download(self, url, mystic):
+    async def download(self, url):
         ydl_opts = {
             'format': 'bestaudio/best',
             'outtmpl': '%(id)s.%(ext)s',
