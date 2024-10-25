@@ -13,6 +13,13 @@ import sys
 from typing import Union, List
 from typing import Dict, List, Union
 
+from pyrogram import filters
+from pyrogram.types import Message
+from pyrogram import Client
+
+
+
+from YukkiMusic.utils.database import get_lang
 
 import yaml
 
@@ -76,7 +83,7 @@ if not commands:
 
 
 def command(commands: Union[str, List[str]], prefixes: Union[str, List[str], None] = "/", case_sensitive: bool = False):
-    async def func(flt, client: pyrogram.Client, message: Message):
+    async def func(flt, client: Client, message: Message):
         lang_code = await get_lang(message.chat.id)
         
         if isinstance(commands, str):
@@ -140,7 +147,7 @@ def command(commands: Union[str, List[str]], prefixes: Union[str, List[str], Non
     else:
         prefixes = set(prefixes) if isinstance(prefixes, list) else {prefixes}
 
-    return create(
+    return filters.create(
         func,
         "MultilingualCommandFilter",
         commands=commands,
