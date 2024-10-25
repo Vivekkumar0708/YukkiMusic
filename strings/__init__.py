@@ -7,8 +7,10 @@
 #
 # All rights reserved
 
+import re
 import os
 import sys
+from typing import Union, List
 from typing import Dict, List, Union
 
 
@@ -73,29 +75,34 @@ if not commands:
     sys.exit()
 
 
-# region command_filter
 def command(commands: Union[str, List[str]], prefixes: Union[str, List[str]] = "/", case_sensitive: bool = False):
-    """Filter commands, i.e.: text messages starting with "/" or any other custom prefix.
-
-    Parameters:
-        commands (``str`` | ``list``):
-            The command or list of commands as string the filter should look for.
-            Examples: "start", ["start", "help", "settings"]. When a message text containing
-            a command arrives, the command itself and its arguments will be stored in the *command*
-            field of the :obj:`~pyrogram.types.Message`.
-
-        prefixes (``str`` | ``list``, *optional*):
-            A prefix or a list of prefixes as string the filter should look for.
-            Defaults to "/" (slash). Examples: ".", "!", ["/", "!", "."], list(".:!").
-            Pass None or "" (empty string) to allow commands with no prefix at all.
-
-        case_sensitive (``bool``, *optional*):
-            Pass True if you want your command(s) to be case sensitive. Defaults to False.
-            Examples: when True, command="Start" would trigger /Start but not /start.
-    """
-    command_re = re.compile(r"([\"'])(.*?)(?<!\\)\1|(\S+)")
-
     async def func(flt, client: pyrogram.Client, message: Message):
+        lang_code = await get_lang(message.chat.id)
+        
+        # Convert commands to list if it's a string
+        if isinstance(commands, str):
+            commands_list = [commands]
+        else:
+            commands_list = commands
+
+        # Get localized commands
+        localized_commands = []
+        for cmd in commands_list:
+            localized_cmd = get_command(cmd, lang_code)
+            if isinstance(localized_cmd, str):
+                localized_commands.append(localized_cmd)
+            elif isinstance(localized_cmd, list):
+                localized_commands.extend(localized_cmd)
+
+        # Add English commands if lang_code is not English
+        if lang_code != "en":
+            for cmd in commands_list:
+                en_cmd = get_command(cmd, "en")
+                if isinstance(en_cmd, str):
+                    localized_commands.append(en_cmd)
+                elif isinstance(en_cmd, list):
+                    localized_commands.extend(en_cmd)
+
         username = client.me.username or ""
         text = message.text or message.caption
         message.command = None
@@ -103,35 +110,39 @@ def command(commands: Union[str, List[str]], prefixes: Union[str, List[str]] = "
         if not text:
             return False
 
-        for prefix in flt.prefixes:
-            if not text.startswith(prefix):
-                continue
+        def match_command(cmd, text, with_prefix=False):
+            if with_prefix:
+                for prefix in flt.prefixes:
+                    if text.startswith(prefix):
+                        without_prefix = text[len(prefix):]
+                        if re.match(rf"^(?:{cmd}(?:@?{username})?)(?:\s|$)", without_prefix,
+                                    flags=re.IGNORECASE if not flt.case_sensitive else 0):
+                            return prefix + cmd
+            else:
+                if re.match(rf"^(?:{cmd}(?:@?{username})?)(?:\s|$)", text,
+                            flags=re.IGNORECASE if not flt.case_sensitive else 0):
+                    return cmd
+            return None
 
-            without_prefix = text[len(prefix):]
+        for cmd in localized_commands:
+            matched_cmd = None
+            if cmd in get_command(commands, "en"):
+                # English commands only work with prefix
+                matched_cmd = match_command(cmd, text, with_prefix=True)
+            else:
+                # User language commands work with or without prefix
+                matched_cmd = match_command(cmd, text, with_prefix=True) or match_command(cmd, text)
 
-            for cmd in flt.commands:
-                if not re.match(rf"^(?:{cmd}(?:@?{username})?)(?:\s|$)", without_prefix,
-                                flags=re.IGNORECASE if not flt.case_sensitive else 0):
-                    continue
-
-                without_command = re.sub(rf"{cmd}(?:@?{username})?\s?", "", without_prefix, count=1,
+            if matched_cmd:
+                without_command = re.sub(rf"{matched_cmd}(?:@?{username})?\s?", "", text, count=1,
                                          flags=re.IGNORECASE if not flt.case_sensitive else 0)
-
-                # match.groups are 1-indexed, group(1) is the quote, group(2) is the text
-                # between the quotes, group(3) is unquoted, whitespace-split text
-
-                # Remove the escape character from the arguments
-                message.command = [cmd] + [
+                message.command = [matched_cmd] + [
                     re.sub(r"\\([\"'])", r"\1", m.group(2) or m.group(3) or "")
-                    for m in command_re.finditer(without_command)
+                    for m in re.finditer(r'([^\s"\']+)|"([^"]*)"|\'([^\']*)\'', without_command)
                 ]
-
                 return True
 
         return False
-
-    commands = commands if isinstance(commands, list) else [commands]
-    commands = {c if case_sensitive else c.lower() for c in commands}
 
     prefixes = [] if prefixes is None else prefixes
     prefixes = prefixes if isinstance(prefixes, list) else [prefixes]
@@ -139,7 +150,7 @@ def command(commands: Union[str, List[str]], prefixes: Union[str, List[str]] = "
 
     return create(
         func,
-        "CommandFilter",
+        "MultilingualCommandFilter",
         commands=commands,
         prefixes=prefixes,
         case_sensitive=case_sensitive
