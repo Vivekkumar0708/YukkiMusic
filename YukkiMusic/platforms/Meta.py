@@ -16,7 +16,7 @@ import yt_dlp
 from YukkiMusic.utils.formatters import seconds_to_min
 from YukkiMusic.utils.exceptions import AssistantErr
 
-class Meta:
+class MetaApi:
     def __init__(self):
         self.regex = r"^(https?:\/\/)?(www\.)?(facebook|fb)\.(com|watch)\S*"
         self.BASE = "https://graph.facebook.com/v16.0/"
