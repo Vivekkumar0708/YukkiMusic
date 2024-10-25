@@ -8,106 +8,85 @@
 # All rights reserved.
 #
 
-import asyncio
-import os
 import re
-import json
-from typing import Dict, Union
-
+import asyncio
 import aiohttp
-from bs4 import BeautifulSoup
-from yt_dlp import YoutubeDL
+import yt_dlp
 
-from YukkiMusic.utils.exceptions import AssistantErr
 from YukkiMusic.utils.formatters import seconds_to_min
+from YukkiMusic.utils.exceptions import AssistantErr
 
-class MetaApi:
+class Meta:
     def __init__(self):
-        self.regex = {
-            "facebook": r"(?:https?:\/\/)?(?:www\.|web\.|m\.)?facebook\.com\/(?:video\.php\?v=\d+|.*?\/videos\/\d+)|fb\.watch\/\w+",
-            "instagram": r"(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([^\/?#&]+)"
-        }
-        self.base_url = {
-            "facebook": "https://www.facebook.com/",
-            "instagram": "https://www.instagram.com/"
-        }
+        self.regex = r"^(https?:\/\/)?(www\.)?(facebook|fb)\.(com|watch)\S*"
+        self.BASE = "https://graph.facebook.com/v16.0/"
 
-    async def valid(self, link: str, platform: str) -> bool:
-        if re.search(self.regex[platform], link):
+    async def valid(self, link: str):
+        if re.match(self.regex, link):
             return True
-        return False
+        else:
+            return False
 
-    async def download(self, url: str, platform: str) -> Dict[str, Union[str, int]]:
-        if platform == "facebook":
-            return await self.facebook(url)
-        elif platform == "instagram":
-            return await self.instagram(url)
-        raise AssistantErr("Unsupported platform")
+    async def info(self, url):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    return False
 
-    async def info(self, url: str, platform: str) -> Dict[str, Union[str, int]]:
+        ydl_opts = {
+            'extract_flat': True,
+            'force_generic_extractor': True,
+            'quiet': True,
+            'no_warnings': True,
+            'nocheckcertificate': True
+        }
+        
         try:
-            ydl_opts = {
-                'format': 'best',
-                'quiet': True,
-            }
-            loop = asyncio.get_running_loop()
-            with YoutubeDL(ydl_opts) as ydl:
-                info = await loop.run_in_executor(None, ydl.extract_info, url, download=False)
+            loop = asyncio.get_event_loop()
+            info = await loop.run_in_executor(
+                None, 
+                lambda: yt_dlp.YoutubeDL(ydl_opts).extract_info(url, download=False)
+            )
+            
+            if not info:
+                raise AssistantErr("Unable to fetch video information.")
+            
+            title = info.get('title', 'Unknown Title')
+            duration_in_sec = info.get('duration')
+            if duration_in_sec:
+                duration = seconds_to_min(duration_in_sec)
+            else:
+                duration = "Unknown"
 
-            return {
-                "title": info['title'],
-                "duration": seconds_to_min(info.get('duration', 0)),
-                "duration_sec": info.get('duration', 0),
-                "thumbnail": info.get('thumbnail'),
-                "url": url
-            }
+            thumbnail = info.get('thumbnail', None)
+            vidid = info.get('id', url)
+
+            return (
+                title,
+                duration,
+                thumbnail,
+                vidid,
+            )
+
         except Exception as e:
-            raise AssistantErr(f"Error fetching information for {platform}: {str(e)}")
+            raise AssistantErr(f"Error fetching information for facebook: {str(e)}")
 
-    async def facebook(self, url: str) -> Dict[str, Union[str, int]]:
+    async def download(self, url, mystic):
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': '%(id)s.%(ext)s',
+            'geo_bypass': True,
+            'nocheckcertificate': True,
+            'quiet': True,
+            'no_warnings': True,
+        }
         try:
-            ydl_opts = {
-                'format': 'best',
-                'outtmpl': 'downloads/%(title)s.%(ext)s',
-                'quiet': True,
-            }
-            loop = asyncio.get_running_loop()
-            with YoutubeDL(ydl_opts) as ydl:
-                info = await loop.run_in_executor(None, ydl.extract_info, url, False)
-                filepath = ydl.prepare_filename(info)
-                await loop.run_in_executor(None, ydl.download, [url])
-
-            return {
-                "title": info['title'],
-                "duration": seconds_to_min(info['duration']),
-                "duration_sec": info['duration'],
-                "thumbnail": info.get('thumbnail'),
-                "filepath": filepath,
-                "url": url
-            }
+            loop = asyncio.get_event_loop()
+            info = await loop.run_in_executor(
+                None,
+                lambda: yt_dlp.YoutubeDL(ydl_opts).extract_info(url, download=True)
+            )
+            downloaded_file = yt_dlp.YoutubeDL(ydl_opts).prepare_filename(info)
+            return downloaded_file
         except Exception as e:
-            raise AssistantErr(f"Error downloading Facebook video: {str(e)}")
-
-    async def instagram(self, url: str) -> Dict[str, Union[str, int]]:
-        try:
-            ydl_opts = {
-                'format': 'best',
-                'outtmpl': 'downloads/%(title)s.%(ext)s',
-                'quiet': True,
-            }
-            loop = asyncio.get_running_loop()
-            with YoutubeDL(ydl_opts) as ydl:
-                info = await loop.run_in_executor(None, ydl.extract_info, url, False)
-                filepath = ydl.prepare_filename(info)
-                await loop.run_in_executor(None, ydl.download, [url])
-
-            return {
-                "title": info['title'],
-                "duration": seconds_to_min(info.get('duration', 0)),
-                "duration_sec": info.get('duration', 0),
-                "thumbnail": info.get('thumbnail'),
-                "filepath": filepath,
-                "url": url
-            }
-        except Exception as e:
-            raise AssistantErr(f"Error downloading Instagram video: {str(e)}")
+            raise AssistantErr(f"Error downloading facebook video: {str(e)}")
