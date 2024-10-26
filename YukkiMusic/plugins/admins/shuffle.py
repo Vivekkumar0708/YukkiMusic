@@ -14,16 +14,13 @@ from pyrogram import filters
 from pyrogram.types import Message
 
 from config import BANNED_USERS
-from strings import get_command
+from strings import get_command, command
 from YukkiMusic import app
 from YukkiMusic.misc import db
 from YukkiMusic.utils.decorators import AdminRightsCheck
 
-# Commands
-SHUFFLE_COMMAND = get_command("SHUFFLE_COMMAND")
 
-
-@app.on_message(filters.command(SHUFFLE_COMMAND) & filters.group & ~BANNED_USERS)
+@app.on_message(command("SHUFFLE_COMMAND") & filters.group & ~BANNED_USERS)
 @AdminRightsCheck
 async def admins(Client, message: Message, _, chat_id):
     if not len(message.command) == 1:
