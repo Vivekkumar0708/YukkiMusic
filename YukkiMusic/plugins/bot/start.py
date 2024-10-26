@@ -42,10 +42,7 @@ from .help import paginate_modules
 
 loop = asyncio.get_running_loop()
 
-START_COMMAND = get_command("START_COMMAND")
-
-
-@app.on_message(filters.command(START_COMMAND) & filters.private & ~BANNED_USERS)
+@app.on_message(command("START_COMMAND") & filters.private & ~BANNED_USERS)
 @LanguageStart
 async def start_comm(client, message: Message, _):
     chat_id = message.chat.id
@@ -241,7 +238,7 @@ async def start_comm(client, message: Message, _):
             )
 
 
-@app.on_message(filters.command(START_COMMAND) & filters.group & ~BANNED_USERS)
+@app.on_message(command("START_COMMAND") & filters.group & ~BANNED_USERS)
 @LanguageStart
 async def testbot(client, message: Message, _):
     uptime = int(time.time() - _boot_)
@@ -257,7 +254,7 @@ async def welcome(client, message: Message):
     if config.PRIVATE_BOT_MODE == str(True):
         if not await is_served_private_chat(message.chat.id):
             await message.reply_text(
-                "**ᴛʜɪs ʙᴏᴛ's ᴘʀɪᴠᴀᴛᴇ ᴍᴏᴅᴇ ʜᴀs ʙᴇᴇɴ ᴇɴᴀʙʟᴇᴅ ᴏɴʟʏ ᴍʏ ᴏᴡɴᴇʀ ᴄᴀɴ ᴜsᴇ ᴛʜɪs ɪғ ᴡᴀɴᴛ ᴛᴏ ᴜsᴇ ᴛʜɪs ɪɴ ʏᴏᴜʀ ᴄʜᴀᴛ sᴏ sᴀʏ ᴛᴏ ᴍʏ ᴏᴡɴᴇʀ ᴛᴏ ᴀᴜᴛʜᴏʀɪᴢᴇ ʏᴏᴜʀ ᴄʜᴀᴛ."
+                "**This Boy's private mode has been enabled only my owner can use this if want to use in your chat so say my Owner to authorize your chat."
             )
             return await app.leave_chat(message.chat.id)
     else:
