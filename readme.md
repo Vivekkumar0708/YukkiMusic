@@ -15,7 +15,7 @@ Deploy **Yukki Music Bot** on Heroku easily:
 ---
 ## 🖇️ VPS Deployment Guide
 
-1. **Clone the Repository**: `git clone https://github.com/TheTeamVivek/YukkiMusic && cd YukkiMusic`
+  - **Clone the Repository**: `git clone https://github.com/TheTeamVivek/YukkiMusic && cd YukkiMusic`
 
 2. **Run the setup**: `bash setup`
 
