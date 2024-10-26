@@ -68,14 +68,6 @@ If you'd like to say **thank you** or support the ongoing development of YukkiMu
 Together, we can make **YukkiMusic** and **YukkiMusicBot** even better!
 
 
----
-
-## Contributors
-
-[![Contributors](https://contrib.nn.ci/api?repo=TheTeamVivek/YukkiMusic&radius=100)](https://github.com/TheTeamVivek/YukkiMusic/graphs/contributors)
-
----
-
 ### Special Thanks
 
 A huge shout-out to [Team Yukki](https://github.com/TeamYukki) for their inspiring work on [YukkiMusicBot](https://github.com/TeamYukki/YukkiMusicBot). Your contributions have been invaluable!
