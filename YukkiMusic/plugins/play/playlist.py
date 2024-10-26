@@ -17,7 +17,7 @@ from pyrogram.errors import ChatAdminRequired, UserNotParticipant
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from config import BANNED_USERS, SERVER_PLAYLIST_LIMIT
-from strings import get_command
+from strings import get_command, command
 from YukkiMusic import Carbon, YouTube, app
 from YukkiMusic.utils.database import (
     delete_playlist,
@@ -32,13 +32,8 @@ from YukkiMusic.utils.inline.playlist import get_playlist_markup, warning_markup
 from YukkiMusic.utils.pastebin import Yukkibin
 from YukkiMusic.utils.stream.stream import stream
 
-ADD_PLAYLIST_COMMAND = get_command("ADD_PLAYLIST_COMMAND")
-PLAY_PLAYLIST_COMMAND = get_command("PLAY_PLAYLIST_COMMAND")
-PLAYLIST_COMMAND = get_command("PLAYLIST_COMMAND")
-DELETE_PLAYLIST_COMMAND = get_command("DELETE_PLAYLIST_COMMAND")
 
-
-@app.on_message(filters.command(PLAYLIST_COMMAND) & ~BANNED_USERS)
+@app.on_message(command("PLAYLIST_COMMAND") & ~BANNED_USERS)
 @language
 async def check_playlist(client, message: Message, _):
     _playlist = await get_playlist_names(message.from_user.id)
@@ -92,7 +87,7 @@ async def get_keyboard(_, user_id):
 
 
 @app.on_message(
-    filters.command(DELETE_PLAYLIST_COMMAND) & filters.group & ~BANNED_USERS
+    command("DELETE_PLAYLIST_COMMAND") & filters.group & ~BANNED_USERS
 )
 @language
 async def del_group_message(client, message: Message, _):
@@ -134,7 +129,7 @@ async def get_keyboard(_, user_id):
 
 
 @app.on_message(
-    filters.command(DELETE_PLAYLIST_COMMAND) & filters.private & ~BANNED_USERS
+    command("DELETE_PLAYLIST_COMMAND") & filters.private & ~BANNED_USERS
 )
 @language
 async def del_plist_msg(client, message: Message, _):
@@ -208,7 +203,7 @@ async def play_playlist(client, CallbackQuery, _):
     return await mystic.delete()
 
 
-@app.on_message(filters.command(PLAY_PLAYLIST_COMMAND) & ~BANNED_USERS & filters.group)
+@app.on_message(command("PLAY_PLAYLIST_COMMAND") & ~BANNED_USERS & filters.group)
 @languageCB
 async def play_playlist_command(client, message, _):
     try:
