@@ -16,7 +16,7 @@ from pyrogram.types import InlineKeyboardMarkup, Message
 
 import config
 from config import BANNED_USERS, lyrical
-from strings import get_command
+from strings import get_command, command
 from YukkiMusic import (
     LOGGER,
     Apple,
@@ -42,12 +42,10 @@ from YukkiMusic.utils.inline.playlist import botplaylist_markup
 from YukkiMusic.utils.logger import play_logs
 from YukkiMusic.utils.stream.stream import stream
 
-PLAY_COMMAND = get_command("PLAY_COMMAND")
-
 
 @app.on_message(
-    filters.command(
-        PLAY_COMMAND,
+    command(
+        "PLAY_COMMAND",
         prefixes=["/", "!", "%", ",", "@", "#"],
     )
     & filters.group
