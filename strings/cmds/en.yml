@@ -25,15 +25,12 @@ LANGUAGE_COMMAND : ["lang", "language", "langs"]
 PLAY_COMMAND : ["play", "vplay", "cplay", "cvplay", "playforce", "vplayforce", "cplayforce", "cvplayforce"]
 PLAYMODE_COMMAND : ["playmode"]
 CHANNELPLAY_COMMAND : ["channelplay"]
-STREAM_COMMAND : ["stream", "cstream", "streamforce"]
+STREAM_COMMAND : ["stream", "cstream", "streamforce", "cstreamforce"]
 
 #Playlists Command
 PLAYLIST_COMMAND : ["playlist"]
-
 PLAY_PLAYLIST_COMMAND : ["playplaylist", "vplayplaylist"]
-
 DELETE_PLAYLIST_COMMAND : ["deleteplaylist", "delplaylist"]
-
 ADD_PLAYLIST_COMMAND : ["addplaylist"]
 
 
@@ -49,7 +46,7 @@ UNAUTH_COMMAND : ["unauth"]
 AUTHUSERS_COMMAND : ["authusers"]
 PAUSE_COMMAND : ["pause", "cpause"]
 RESUME_COMMAND : ["resume", "cresume"]
-MUTE_COMMAND : ["mute", "cmute"]
+MUTE_COMMAND : ["cmute", "mute"]
 UNMUTE_COMMAND : ["unmute", "cunmute"]
 STOP_COMMAND : ["stop", "end", "cstop", "cend"]
 SKIP_COMMAND : ["skip", "cskip"]
