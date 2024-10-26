@@ -119,9 +119,9 @@ The bot includes:
 ## 13. Contact Information
 
 For privacy-related questions or concerns:
-- Support Group: {config.SUPPORT_GROUP}
-- Updates Channel: {config.SUPPORT_CHANNEL}
-- GitHub: https://github.com/TheTeamVivek/YukkiMusic
+- [Support Group](https://t.me/TheTeamVk)
+- [Updates Channe](https://t.me/TheTeamVivek)
+- [GitHub](https://github.com/TheTeamVivek/YukkiMusic)
 
 ## 14. Compliance
 
@@ -157,12 +157,14 @@ We process data for:
 
 We interact with:
 - YouTube
+- Saavn
 - Spotify
 - SoundCloud
 - Apple Music
 - Resso
 - Telegram file storage
 - MongoDB database
+- Instagram
 
 ## 18. Security Measures
 
