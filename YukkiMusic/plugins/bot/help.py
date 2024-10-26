@@ -15,14 +15,12 @@ from pyrogram import filters, types
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from config import BANNED_USERS, START_IMG_URL
-from strings import get_command, get_string
+from strings import get_command, get_string, command
+
 from YukkiMusic import HELPABLE, app
 from YukkiMusic.utils.database import get_lang, is_commanddelete_on
 from YukkiMusic.utils.decorators.language import LanguageStart
 from YukkiMusic.utils.inline.help import private_help_panel
-
-### Command
-HELP_COMMAND = get_command("HELP_COMMAND")
 
 COLUMN_SIZE = 4  # number of  button height
 NUM_COLUMNS = 3  # number of button width
@@ -102,7 +100,7 @@ def paginate_modules(page_n, module_dict, chat=None, close: bool = False):
     return pairs
 
 
-@app.on_message(filters.command(HELP_COMMAND) & filters.private & ~BANNED_USERS)
+@app.on_message(command("HELP_COMMAND") & filters.private & ~BANNED_USERS)
 @app.on_callback_query(filters.regex("settings_back_helper") & ~BANNED_USERS)
 async def helper_private(
     client: app, update: Union[types.Message, types.CallbackQuery]
@@ -144,7 +142,7 @@ async def helper_private(
             )
 
 
-@app.on_message(filters.command(HELP_COMMAND) & filters.group & ~BANNED_USERS)
+@app.on_message(command("HELP_COMMAND") & filters.group & ~BANNED_USERS)
 @LanguageStart
 async def help_com_group(client, message: Message, _):
     keyboard = private_help_panel(_)
