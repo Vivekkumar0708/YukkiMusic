@@ -1,4 +1,4 @@
-# Privacy Policy for Yukki Music
+# Privacy Policy for YukkiMusic
 
 Last Updated: 2024-10-26
 
@@ -120,7 +120,7 @@ The bot includes:
 
 For privacy-related questions or concerns:
 - [Support Group](https://t.me/TheTeamVk)
-- [Updates Channe](https://t.me/TheTeamVivek)
+- [Updates Channel](https://t.me/TheTeamVivek)
 - [GitHub](https://github.com/TheTeamVivek/YukkiMusic)
 
 ## 14. Compliance
