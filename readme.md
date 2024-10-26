@@ -17,15 +17,15 @@ Deploy **Yukki Music Bot** on Heroku easily:
 
   - **Clone the Repository**: `git clone https://github.com/TheTeamVivek/YukkiMusic && cd YukkiMusic`
 
-2. **Run the setup**: `bash setup`
+  - **Run the setup**: `bash setup`
 
-3. **Install tmux**
+  - **Install tmux**
    To keep your bot running after you close the terminal: `sudo apt install tmux && tmux`
 
-4. **Run the Bot**: `python3 -m YukkiMusic`
+  - **Run the Bot**: `python3 -m YukkiMusic`
 
 
-5.  **Detach from tmux session**
+  - **Detach from tmux session**
    Press `Ctrl+b`, then `d` to exit the tmux session without stopping the bot.
 
 ___
