@@ -6,7 +6,6 @@
 If you're using or forking this project, please show your support by starring the original repo:
 [YukkiMusicBot](https://github.com/TeamYukki/YukkiMusicBot)
 
----
 
 ## 🚀 Quick Deployment Options
 
@@ -32,13 +31,11 @@ Get started quickly by deploying to Heroku with just one click:
   - **Detach from tmux session**
    Press `Ctrl+b`, then `d` to exit the tmux session without stopping the bot.
 
-___
 
 ### ⚙️ Configuration
 
 Need help setting up? Check out our detailed configuration guide: [**Configuration Instructions**](https://github.com/TheTeamVivek/YukkiMusic/blob/master/config/README.md).
 
----
 
 ### 🤝 Need Help?
 
@@ -50,7 +47,6 @@ We're here to support you through multiple channels:
 
 - [**👥 Join Support Group**](https://t.me/TheTeamVk)
 
----
 
 ### ❣️ Show Your Support
 
@@ -58,15 +54,12 @@ Love YukkiMusic? Here's how you can help:
 
 - ⭐ [Star the YukkiMusicBot Project](https://github.com/TeamYukki/YukkiMusicBot).
 
-- 🍴 [Fork and and contribute to the YukkiMusic Repository](https://github.com/TheTeamVivek/YukkiMusic)
+- 🍴 [Fork and and contribute to the this Repository](https://github.com/TheTeamVivek/YukkiMusic)
 
 - 📢 Share your experience on [Dev.to](https://dev.to/), [Medium](https://medium.com/), or your personal blog.
 
 Together, we can make **YukkiMusic** and **YukkiMusicBot** even better!
 
----
 ### 🙏 Special Thanks
 
 A heartfelt thanks to [Team Yukki](https://github.com/TeamYukki) for creating the amazing  [YukkiMusicBot](https://github.com/TeamYukki/YukkiMusicBot) that inspired this project!
-
----
