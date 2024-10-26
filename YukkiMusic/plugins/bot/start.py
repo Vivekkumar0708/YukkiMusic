@@ -254,7 +254,7 @@ async def welcome(client, message: Message):
     if config.PRIVATE_BOT_MODE == str(True):
         if not await is_served_private_chat(message.chat.id):
             await message.reply_text(
-                "**This Boy's private mode has been enabled only my owner can use this if want to use in your chat so say my Owner to authorize your chat."
+                "This Bot's private mode has been enabled only my owner can use this if want to use in your chat so say my Owner to authorize your chat."
             )
             return await app.leave_chat(message.chat.id)
     else:
