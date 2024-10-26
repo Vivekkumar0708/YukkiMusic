@@ -10,83 +10,55 @@
 
 import re
 import asyncio
-import aiohttp
-import yt_dlp
-
-from YukkiMusic.utils.formatters import seconds_to_min
+from typing import Tuple, Optional
+from yt_dlp import YoutubeDL
 from YukkiMusic.utils.exceptions import AssistantErr
 
 class MetaApi:
     def __init__(self):
-        self.regex = r"^(https?:\/\/)?(www\.)?(facebook|fb)\.(com|watch)\S*"
-        self.BASE = "https://graph.facebook.com/v16.0/"
-
-    async def valid(self, link: str):
-        if re.match(self.regex, link):
-            return True
-        else:
-            return False
-
-    async def info(self, url):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status != 200:
-                    return False
-
-        ydl_opts = {
-            'extract_flat': True,
-            'force_generic_extractor': True,
-            'quiet': True,
-            'no_warnings': True,
-            'nocheckcertificate': True
-        }
-        
-        try:
-            loop = asyncio.get_event_loop()
-            info = await loop.run_in_executor(
-                None, 
-                lambda: yt_dlp.YoutubeDL(ydl_opts).extract_info(url, download=False)
-            )
-            
-            if not info:
-                raise AssistantErr("Unable to fetch video information.")
-            
-            title = info.get('title', 'Unknown Title')
-            duration_in_sec = info.get('duration')
-            if duration_in_sec:
-                duration = seconds_to_min(duration_in_sec)
-            else:
-                duration = "Unknown"
-
-            thumbnail = info.get('thumbnail', None)
-            vidid = info.get('id', url)
-
-            return (
-                title,
-                duration,
-                thumbnail,
-                vidid,
-            )
-
-        except Exception as e:
-            raise AssistantErr(f"Error fetching information for facebook: {str(e)}")
-
-    async def download(self, url):
-        ydl_opts = {
+        # Updated regex to match Instagram URLs
+        self.regex = r"^(https?:\/\/)?(www\.)?(instagram)\.(com|tv)\/(?:p|reel|tv)\/([^/?#&]+)"
+        self.ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': '%(id)s.%(ext)s',
+            'outtmpl': 'downloads/%(id)s.%(ext)s',
             'geo_bypass': True,
             'nocheckcertificate': True,
             'quiet': True,
             'no_warnings': True,
         }
+
+    async def valid(self, link: str) -> bool:
+        """Validate if the URL is an Instagram post/reel."""
+        return bool(re.match(self.regex, link))
+
+    async def info(self, url: str) -> Tuple[str, str, str, str]:
+        """Get information about Instagram media."""
+        if not await self.valid(url):
+            raise AssistantErr("Invalid Instagram URL")
+
         try:
-            loop = asyncio.get_event_loop()
-            info = await loop.run_in_executor(
-                None,
-                lambda: yt_dlp.YoutubeDL(ydl_opts).extract_info(url, download=True)
-            )
-            downloaded_file = yt_dlp.YoutubeDL(ydl_opts).prepare_filename(info)
-            return downloaded_file
+            with YoutubeDL(self.ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                title = info.get('title', 'Unknown Title')
+                duration = info.get('duration', 0)
+                duration_min = f"{duration // 60}:{duration % 60:02d}"  # Convert to MM:SS
+                thumbnail = info.get('thumbnail', None)
+                vidid = info.get('id', url)
+
+                return title, duration_min, thumbnail, vidid
+
         except Exception as e:
-            raise AssistantErr(f"Error downloading facebook video: {str(e)}")
+            raise AssistantErr(f"Error fetching information for Instagram: {str(e)}")
+
+    async def download(self, url: str) -> str:
+        """Download media from Instagram."""
+        if not await self.valid(url):
+            raise AssistantErr("Invalid Instagram URL")
+
+        try:
+            with YoutubeDL(self.ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                return ydl.prepare_filename(info)
+
+        except Exception as e:
+            raise AssistantErr(f"Error downloading Instagram media: {str(e)}")
