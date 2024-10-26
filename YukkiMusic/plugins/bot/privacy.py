@@ -18,8 +18,6 @@ from YukkiMusic.utils.database import (
     get_lang,
 )
 
-PRIVACY_COMMAND = get_command("PRIVACY_COMMAND")
-
 TEXT = f"""
 🔒 **Privacy Policy for {app.mention}**
 
@@ -27,168 +25,115 @@ Choose an option below to:
 - View our Privacy Policy
 - Retrieve your data
 - Delete your data
-- Cancel
+- Close
 
 Your privacy matters to us. For any questions, contact our [Support Team]({config.SUPPORT_GROUP}).
 """
+PRIVACY_SECTIONS = {
+    "collect": """
+**What Information We Collect**
 
-@app.on_message(command(PRIVACY_COMMAND) & ~BANNED_USERS)
-async def privacy(client, message: Message):
+• Basic Telegram user data (ID, username)
+• Chat/Group IDs where the bot is used
+• Command usage and interactions
+• Playlists and music preferences
+• Voice chat participation data
+• User settings and configurations
+""",
+
+    "why": """
+**Why We Collect It**
+
+• To provide music streaming services
+• To maintain user playlists
+• To process voice chat requests
+• To manage user permissions
+• To improve bot features
+• To prevent abuse and spam
+""",
+
+    "do": """
+**What We Do**
+
+• Store data securely in encrypted databases
+• Process music requests and streams
+• Maintain user preferences
+• Monitor for proper functionality
+• Delete temporary files after use
+• Implement security measures
+""",
+
+    "donot": """
+**What We Don't Do**
+
+• Share your data with third parties
+• Store unnecessary personal information
+• Keep data longer than needed
+• Use data for marketing
+• Track users across platforms
+• Sell any user information
+""",
+
+    "rights": """
+**Your Rights**
+
+• Access your stored data
+• Request data deletion
+• Modify your settings
+• Opt-out of data collection
+• Report privacy concerns
+• Contact support for help
+"""
+}
+
+@app.on_message(command("PRIVACY_COMMAND") & ~BANNED_USERS)
+async def privacy_menu(client, message: Message):
+    """Main privacy menu with 4 buttons"""
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Privacy Policy", callback_data="view_privacy")],
+        [InlineKeyboardButton("Privacy Policy", callback_data="show_privacy_sections")],
         [InlineKeyboardButton("Retrieve Data", callback_data="retrieve_data")],
         [InlineKeyboardButton("Delete Data", callback_data="delete_data")],
-        [InlineKeyboardButton("Cancel", callback_data="close")]
+        [InlineKeyboardButton("Close", callback_data="close")]
     ])
     await message.reply_text(TEXT, reply_markup=keyboard, disable_web_page_preview=True)
 
-@app.on_callback_query(filters.regex("view_privacy") & ~BANNED_USERS)
-async def privacy_policy(client, callback_query):
-    await callback_query.answer()
-    keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("Back", callback_data="privacy_back"),
-        InlineKeyboardButton("Close", callback_data="close")
-    ]])
+@app.on_callback_query(filters.regex("show_privacy_sections") & ~BANNED_USERS)
+async def show_privacy_sections(client, callback_query):
+    """Show detailed privacy policy sections"""
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("What We Collect", callback_data="privacy_collect")],
+        [InlineKeyboardButton("Why We Collect", callback_data="privacy_why")],
+        [InlineKeyboardButton("What We Do", callback_data="privacy_do")],
+        [InlineKeyboardButton("What We Don't Do", callback_data="privacy_donot")],
+        [InlineKeyboardButton("Your Rights", callback_data="privacy_rights")],
+        [InlineKeyboardButton("Back", callback_data="privacy_back")],
+        [InlineKeyboardButton("Close", callback_data="close")]
+    ])
     await callback_query.edit_message_text(
-        f"**Privacy Policy**\n\nRead our full privacy policy here: [Privacy Policy]({config.PRIVACY_LINK})",
-        reply_markup=keyboard,
-        disable_web_page_preview=True
-    )
-
-@app.on_callback_query(filters.regex("retrieve_data") & ~BANNED_USERS)
-async def retrieve_data(client, callback_query):
-    user_id = callback_query.from_user.id
-    await callback_query.answer("Preparing your data file...")
-    
-    user_data = {
-        "user_id": user_id,
-        "export_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "data": {
-            "playlists": [],
-            "authorized_chats": [],
-            "user_settings": {}
-        }
-    }
-    
-    try:
-        if not await is_served_user(user_id):
-            user_data["status"] = "No data found for this user"
-        else:
-            user_data["status"] = "Active user"
-            playlists = await get_playlist_names(user_id)
-            if playlists:
-                for playlist in playlists:
-                    playlist_data = await get_playlist(user_id, playlist)
-                    user_data["data"]["playlists"].append({
-                        "name": playlist,
-                        "content": playlist_data
-                    })
-            
-            auth_chats = await get_authuser_names(user_id)
-            if auth_chats:
-                user_data["data"]["authorized_chats"] = auth_chats
-            
-            user_data["data"]["user_settings"] = {
-                "language": await get_lang(user_id),
-            }
-        
-        file_path = os.path.join("downloads", f"user_data_{user_id}.json")
-        
-        with open(file_path, 'w', encoding='utf-8') as file:
-            json.dump(user_data, file, indent=4, ensure_ascii=False)
-        
-        await callback_query.message.reply_document(
-            document=file_path,
-            caption="Here's your requested data export. This file contains all your stored information in our bot.",
-            file_name=f"user_data_export_{user_id}.json",
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("Back", callback_data="privacy_back"),
-                InlineKeyboardButton("Close", callback_data="close")
-            ]])
-        )
-        
-        try:
-            os.remove(file_path)
-        except:
-            pass
-        
-        await callback_query.edit_message_text(
-            "✅ Your data has been exported successfully.\nPlease check the file sent above.",
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("Back", callback_data="privacy_back"),
-                InlineKeyboardButton("Close", callback_data="close")
-            ]])
-        )
-        
-    except Exception as e:
-        print(f"Error exporting user data: {str(e)}")
-        await callback_query.edit_message_text(
-            "❌ An error occurred while exporting your data.\nPlease try again later or contact support.",
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("Back", callback_data="privacy_back"),
-                InlineKeyboardButton("Close", callback_data="close")
-            ]])
-        )
-
-@app.on_callback_query(filters.regex("delete_data") & ~BANNED_USERS)
-async def delete_data(client, callback_query):
-    await callback_query.answer()
-    keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("⚠️ Confirm Delete", callback_data="confirm_delete"),
-        InlineKeyboardButton("Cancel", callback_data="privacy_back")
-    ]])
-    
-    await callback_query.edit_message_text(
-        "⚠️ **Are you sure you want to delete your data?**\n\n"
-        "This will delete:\n"
-        "- Your playlists\n"
-        "- Your auth permissions\n"
-        "- Your user records\n\n"
-        "Note: This action cannot be undone!\n"
-        "Banned status and blacklisted chat data will be preserved for moderation purposes.",
+        "**Privacy Policy Sections**\n\nSelect a section to learn more:",
         reply_markup=keyboard
     )
 
-@app.on_callback_query(filters.regex("confirm_delete") & ~BANNED_USERS)
-async def confirm_delete(client, callback_query):
-    user_id = callback_query.from_user.id
-    deleted = False
+@app.on_callback_query(filters.regex("privacy_") & ~BANNED_USERS)
+async def privacy_section_callback(client, callback_query):
+    """Handle privacy section callbacks"""
+    section = callback_query.data.split("_")[1]
     
-    try:
-        playlists = await get_playlist_names(user_id)
-        for playlist in playlists:
-            await delete_playlist(user_id, playlist)
-        
-        auth_chats = await get_authuser_names(user_id)
-        for chat in auth_chats:
-            await delete_authuser(user_id, chat)
-        
-        await delete_served_user(user_id)
-        
-        deleted = True
-    except Exception as e:
-        print(f"Error deleting user data: {str(e)}")
-    
-    keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("Back", callback_data="privacy_back"),
-        InlineKeyboardButton("Close", callback_data="close")
-    ]])
-    
-    if deleted:
-        text = "✅ Your data has been successfully deleted.\n\nNote: Banned status and blacklisted chat data have been preserved for moderation purposes."
-    else:
-        text = "❌ An error occurred while deleting your data.\nPlease try again later or contact support."
-    
-    await callback_query.edit_message_text(text, reply_markup=keyboard)
+    if section == "back":
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("Privacy Policy", callback_data="show_privacy_sections")],
+            [InlineKeyboardButton("Retrieve Data", callback_data="retrieve_data")],
+            [InlineKeyboardButton("Delete Data", callback_data="delete_data")],
+            [InlineKeyboardButton("Close", callback_data="close")]
+        ])
+        return await callback_query.edit_message_text(TEXT, reply_markup=keyboard)
 
-@app.on_callback_query(filters.regex("privacy_back") & ~BANNED_USERS)
-async def privacy_back(client, callback_query):
-    await callback_query.answer()
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Privacy Policy", callback_data="view_privacy")],
-        [InlineKeyboardButton("Retrieve Data", callback_data="retrieve _data")],
-        [InlineKeyboardButton("Delete Data", callback_data="delete_data")],
-        [InlineKeyboardButton("Cancel", callback_data="close")]
-    ])
-    
-    await callback_query.edit_message_text(TEXT, reply_markup=keyboard)
+    if section in PRIVACY_SECTIONS:
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("Back to Sections", callback_data="show_privacy_sections")],
+            [InlineKeyboardButton("Close", callback_data="close")]
+        ])
+        await callback _query.edit_message_text(
+            PRIVACY_SECTIONS[section],
+            reply_markup=keyboard
+        )
