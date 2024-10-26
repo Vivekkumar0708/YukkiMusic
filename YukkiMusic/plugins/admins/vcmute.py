@@ -11,6 +11,8 @@
 from pyrogram import filters
 from pyrogram.types import Message
 
+from strings import command
+
 from config import BANNED_USERS
 from YukkiMusic import app
 from YukkiMusic.core.call import Yukki
@@ -18,7 +20,7 @@ from YukkiMusic.utils.database import is_muted, mute_off, mute_on
 from YukkiMusic.utils.decorators import AdminRightsCheck
 
 
-@app.on_message(filters.command(["vcmute"]) & filters.group & ~BANNED_USERS)
+@app.on_message(command("MUTE_COMMAND") & filters.group & ~BANNED_USERS)
 @AdminRightsCheck
 async def mute_admin(cli, message: Message, _, chat_id):
     if not len(message.command) == 1 or message.reply_to_message:
@@ -32,7 +34,7 @@ async def mute_admin(cli, message: Message, _, chat_id):
     )
 
 
-@app.on_message(filters.command(["vcunmute"]) & filters.group & ~BANNED_USERS)
+@app.on_message(command("UNMUTE_COMMAND") & filters.group & ~BANNED_USERS)
 @AdminRightsCheck
 async def unmute_admin(Client, message: Message, _, chat_id):
     if not len(message.command) == 1 or message.reply_to_message:
