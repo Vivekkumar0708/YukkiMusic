@@ -58,8 +58,8 @@ Love YukkiMusic? Here's how you can help:
 
 - 📢 Share your experience on [Dev.to](https://dev.to/), [Medium](https://medium.com/), or your personal blog.
 
-Together, we can make **YukkiMusic** and **YukkiMusicBot** even better!
+Together, we can make [**YukkiMusic**](https://github.com/TheTeamVivek/YukkiMusic) and [**YukkiMusicBot**](https://github.com/TeamYukki/YukkiMusicBot) even better!
 
 ### 🙏 Special Thanks
 
-A heartfelt thanks to [Team Yukki](https://github.com/TeamYukki) for creating the amazing  [YukkiMusicBot](https://github.com/TeamYukki/YukkiMusicBot) that inspired this project!
+A heartfelt thanks to [**Team Yukki**](https://github.com/TeamYukki) for creating the amazing  [**YukkiMusicBot**](https://github.com/TeamYukki/YukkiMusicBot) that inspired this project!
