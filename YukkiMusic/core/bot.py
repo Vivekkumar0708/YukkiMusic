@@ -16,16 +16,16 @@ import sys
 
 from pyrogram import Client
 from pyrogram.enums import ChatMemberStatus
-from pyrogram.errors import ChatSendPhotosForbidden
-from pyrogram.errors import ChatWriteForbidden
-from pyrogram.errors import FloodWait
-from pyrogram.errors import MessageIdInvalid
 from pyrogram.types import BotCommand
 from pyrogram.types import BotCommandScopeAllChatAdministrators
 from pyrogram.types import BotCommandScopeAllGroupChats
 from pyrogram.types import BotCommandScopeAllPrivateChats
 from pyrogram.types import BotCommandScopeChat
 from pyrogram.types import BotCommandScopeChatMember
+from pyrogram.errors import ChatSendPhotosForbidden
+from pyrogram.errors import ChatWriteForbidden
+from pyrogram.errors import FloodWait
+from pyrogram.errors import MessageIdInvalid
 
 import config
 
