@@ -147,7 +147,8 @@ class YukkiBot(Client):
             BotCommand("update", "Update the bot"),
             BotCommand("restart", "Restart the bot"),
             BotCommand("logs", "Get logs"),
-
+            BotCommand("export", "Export all data of mongodb"),
+            BotCommand("import", "Import all data in mongodb"),
             BotCommand("addsudo", "Add a user as a sudoer"),
             BotCommand("delsudo", "Remove a user from sudoers"),
             BotCommand("sudolist", "List all sudo users"),
@@ -166,7 +167,7 @@ class YukkiBot(Client):
             BotCommand("autoend", "Enable or disable auto end for streams"),
             BotCommand("reboot", "Reboot the bot"),
             BotCommand("restart", "Restart the bot"),
-]
+        ]
 
         await self.set_bot_commands(private_commands, scope=BotCommandScopeAllPrivateChats())
         await self.set_bot_commands(group_commands, scope=BotCommandScopeAllGroupChats())
