@@ -27,6 +27,7 @@ from pyrogram.types import (
     BotCommandScopeAllChatAdministrators,
     BotCommandScopeAllGroupChats,
     BotCommandScopeAllPrivateChats,
+    BotCommandScopeChatMember,
 )
 
 import config
@@ -122,6 +123,7 @@ class YukkiBot(Client):
                     ],
                     scope=BotCommandScopeAllPrivateChats(),
                 )
+
                 await self.set_bot_commands(
                     commands=[
                         BotCommand("play", "Start playing requested song"),
@@ -149,6 +151,26 @@ class YukkiBot(Client):
                 )
             except:
                 pass
+            if isinstance(config.LOG_GROUP_ID, str):
+                if not config.LOG_GROUP_ID.startswith("@"):
+                    LOG_GROUP_ID = f"@{config.LOG_GROUP_ID}"
+                else:
+                    LOG_GROUP_ID = config.LOG_GROUP_ID
+            else:
+                LOG_GROUP_ID = config.LOG_GROUP_ID
+            for id in config.OWNER_ID:
+                try:
+                    await self.set_bot_commands(
+                        commands=[
+                        BotCommand("update", "update the bot"),
+                        BotCommand("restart", "Restart the bot"),
+                        BotCommand("logs", "Get logs"),
+                        ],
+                    scope=BotCommandScopeChatMember(chat_id=LOG_GROUP_ID, user_id=id),
+                    )
+                except:
+                    pass
+
         else:
             pass
         try:
