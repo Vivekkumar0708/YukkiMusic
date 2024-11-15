@@ -24,6 +24,7 @@ from pyrogram.errors import (
 )
 from pyrogram.types import (
     BotCommand,
+    BotCommandScopeChat,
     BotCommandScopeAllChatAdministrators,
     BotCommandScopeAllGroupChats,
     BotCommandScopeAllPrivateChats,
@@ -167,6 +168,18 @@ class YukkiBot(Client):
                         BotCommand("logs", "Get logs"),
                         ],
                     scope=BotCommandScopeChatMember(chat_id=LOG_GROUP_ID, user_id=id),
+                    )
+                except:
+                    pass
+            for id in config.OWNER_ID:
+                try:
+                    await self.set_bot_commands(
+                        commands=[
+                        BotCommand("update", "update the bot"),
+                        BotCommand("restart", "Restart the bot"),
+                        BotCommand("logs", "Get logs"),
+                        ],
+                    scope=BotCommandScopeChat(chat_id=id),
                     )
                 except:
                     pass
