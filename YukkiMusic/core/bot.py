@@ -147,7 +147,26 @@ class YukkiBot(Client):
             BotCommand("update", "Update the bot"),
             BotCommand("restart", "Restart the bot"),
             BotCommand("logs", "Get logs"),
-        ]
+
+            BotCommand("addsudo", "Add a user as a sudoer"),
+            BotCommand("delsudo", "Remove a user from sudoers"),
+            BotCommand("sudolist", "List all sudo users"),
+            BotCommand("log", "Get the bot logs"),
+            BotCommand("getvar", "Get a specific environment variable"),
+            BotCommand("delvar", "Delete a specific environment variable"),
+            BotCommand("setvar", "Set a specific environment variable"),
+            BotCommand("usage", "Get dyno usage information"),
+            BotCommand("maintenance", "Enable or disable maintenance mode"),
+            BotCommand("logger", "Enable or disable logging"),
+            BotCommand("block", "Block a user"),
+            BotCommand("unblock", "Unblock a user"),
+            BotCommand("blacklist", "Blacklist a chat"),
+            BotCommand("whitelist", "Whitelist a chat"),
+            BotCommand("blacklisted", "List all blacklisted chats"),
+            BotCommand("autoend", "Enable or disable auto end for streams"),
+            BotCommand("reboot", "Reboot the bot"),
+            BotCommand("restart", "Restart the bot"),
+]
 
         await self.set_bot_commands(private_commands, scope=BotCommandScopeAllPrivateChats())
         await self.set_bot_commands(group_commands, scope=BotCommandScopeAllGroupChats())
