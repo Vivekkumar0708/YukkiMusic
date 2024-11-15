@@ -42,7 +42,7 @@ def get_ytdl_options(
         if token_data:
             ytdl_opts += [
                 "--username" if commandline else "username",
-                "oauth2",
+                "oauth",
                 "--password" if commandline else "password",
                 "''",
             ]
@@ -52,9 +52,9 @@ def get_ytdl_options(
     elif isinstance(ytdl_opts, str):
         if token_data:
             ytdl_opts += (
-                "--username oauth2 --password '' "
+                "--username oauth --password '' "
                 if commandline
-                else "username oauth2 password '' "
+                else "username oauth password '' "
             )
         else:
             ytdl_opts += (
@@ -63,7 +63,7 @@ def get_ytdl_options(
 
     elif isinstance(ytdl_opts, dict):
         if token_data:
-            ytdl_opts.update({"username": "oauth2", "password": ""})
+            ytdl_opts.update({"username": "oauth", "password": ""})
         else:
             ytdl_opts["cookiefile"] = cookies()
 
